@@ -1,4 +1,3 @@
-# config/polls.yaml
 postgres:
   database: aiohttp
   user: admin

@@ -1,6 +1,6 @@
 import aiopg.sa
 from sqlalchemy import (
-    MetaData, Table, Column, ForeignKey,
+    MetaData, Table, Column,
     Integer, String, Date
 )
 

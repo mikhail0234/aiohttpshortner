@@ -1,9 +1,7 @@
-# polls/init_db.py
 from sqlalchemy import create_engine, MetaData
 
 from shortener.settings import config
 from shortener.db import url
-
 
 DSN = "postgresql://{user}:{password}@{host}:{port}/{database}"
 
