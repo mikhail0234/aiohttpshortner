@@ -43,27 +43,18 @@ async def new(request):
     date = time.strftime("%Y-%m-%d")
     exp_date = datetime.today()+ relativedelta(months=6)
     exp_date = exp_date.strftime("%Y-%m-%d")
-    print(exp_date)
     async with request.app['db'].acquire() as conn:
         cursor = await conn.execute("INSERT INTO url  (url_long, url_short, pub_date, exp_date) VALUES (%s, %s, %s, %s) RETURNING id;",
-
                               url, "", date, exp_date)
-
         id = await cursor.fetchall()
-        print("ID ", type(id[0][0]))
         url_short = encode(id[0][0])
-
-        print("url_short ", url_short)
 
         await conn.execute("UPDATE url  SET url_short = %s WHERE id= %s", url_short, id[0][0])
         url = "http://{host}:{port}/{path}".format(
             host=request.app['config']['host'],
             port=request.app['config']['port'],
             path=url_short)
-        print("url", url)
         return web.Response(text=url)
-
-
 
 async def redirect(request):
     """
@@ -77,7 +68,6 @@ async def redirect(request):
     async with request.app['db'].acquire() as conn:
         cursor = await conn.execute("SELECT url_long FROM url WHERE id = %s",id)
         record = await cursor.fetchone()
-    print(record)
     if record:
         return web.HTTPFound(record[0])
     else:

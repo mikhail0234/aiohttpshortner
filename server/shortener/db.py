@@ -14,7 +14,6 @@ url = Table(
     Column('url_short', String(200), nullable=False),
     Column('pub_date', Date, nullable=False),
     Column('exp_date', Date, nullable=False)
-
 )
 
 async def init_pg(app):
@@ -44,7 +43,6 @@ async def insert_url(app):
             'url_short': 'https://github.com',
             'pub_date': '2019-10-30 19:17:49.629+02'}
     ])
-
 
 
 async def close_pg(app):

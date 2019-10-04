@@ -11,10 +11,6 @@ def create_tables(engine):
     meta = MetaData()
     meta.create_all(bind=engine, tables=[url])
 
-
-
-
-
 if __name__ == '__main__':
     db_url = DSN.format(**config['postgres'])
     engine = create_engine(db_url)

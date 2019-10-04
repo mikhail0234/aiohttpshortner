@@ -22,7 +22,6 @@ def encode(id, chars=CHARS):
     arr.reverse()
     return ''.join(arr)
 
-
 def decode(arr, chars=CHARS):
     print(arr)
     l = len(arr)
