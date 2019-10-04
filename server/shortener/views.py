@@ -1,8 +1,10 @@
 from aiohttp import web
 import db
-from utils import url_fetch, short_generator
+from utils import url_fetch, encode, decode
 import json
 import time
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 
 routes = web.RouteTableDef()
@@ -15,7 +17,6 @@ async def list(request):
     :param request:
     :return:
     """
-    id = short_generator()
 
     async with request.app['db'].acquire() as conn:
         cursor = await conn.execute(db.url.select())
@@ -25,7 +26,6 @@ async def list(request):
         for result in urls:
             json_data.append(result)
         return web.Response(text=json.dumps(json_data, default=str))
-        # return web.json_response(json_data)
 
 
 @routes.post('/post')
@@ -38,11 +38,24 @@ async def new(request):
     """
     data = await request.json()
     url = url_fetch(data)
-    url_short = short_generator()
+
 
     date = time.strftime("%Y-%m-%d")
+    exp_date = datetime.today()+ relativedelta(months=6)
+    exp_date = exp_date.strftime("%Y-%m-%d")
+    print(exp_date)
     async with request.app['db'].acquire() as conn:
-        await conn.execute("INSERT INTO url  (url_short, url_long, pub_date) VALUES (%s, %s, %s)", url_short, url, date)
+        cursor = await conn.execute("INSERT INTO url  (url_long, url_short, pub_date, exp_date) VALUES (%s, %s, %s, %s) RETURNING id;",
+
+                              url, "", date, exp_date)
+
+        id = await cursor.fetchall()
+        print("ID ", type(id[0][0]))
+        url_short = encode(id[0][0])
+
+        print("url_short ", url_short)
+
+        await conn.execute("UPDATE url  SET url_short = %s WHERE id= %s", url_short, id[0][0])
         url = "http://{host}:{port}/{path}".format(
             host=request.app['config']['host'],
             port=request.app['config']['port'],
@@ -60,10 +73,11 @@ async def redirect(request):
     :return:
     """
     url_short = request.match_info['url_short']
+    id = decode(url_short)
     async with request.app['db'].acquire() as conn:
-        cursor = await conn.execute("SELECT url_long FROM url WHERE url_short = %s",url_short)
+        cursor = await conn.execute("SELECT url_long FROM url WHERE id = %s",id)
         record = await cursor.fetchone()
-
+    print(record)
     if record:
         return web.HTTPFound(record[0])
     else:

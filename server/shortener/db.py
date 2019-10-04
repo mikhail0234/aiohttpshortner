@@ -12,7 +12,9 @@ url = Table(
     Column('id', Integer, primary_key=True),
     Column('url_long', String(200), nullable=False),
     Column('url_short', String(200), nullable=False),
-    Column('pub_date', Date, nullable=False)
+    Column('pub_date', Date, nullable=False),
+    Column('exp_date', Date, nullable=False)
+
 )
 
 async def init_pg(app):
